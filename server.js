@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,63 +9,66 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// --- DATABASE ---
-const dbPath = path.join(__dirname, 'arogyapath.db');
-const db = new sqlite3.Database(dbPath);
-
-db.serialize(() => {
-    db.run("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, email TEXT UNIQUE, password TEXT)");
-    db.run("CREATE TABLE IF NOT EXISTS profiles (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, age INTEGER, gender TEXT, height REAL)");
-    db.run("CREATE TABLE IF NOT EXISTS vitals (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, date TEXT, blood_sugar INTEGER, systolic INTEGER, diastolic INTEGER, heart_rate INTEGER, weight REAL)");
-    db.run("CREATE TABLE IF NOT EXISTS maternal (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, week INTEGER, due_date TEXT, weight_gain REAL, fetal_hr INTEGER, iron REAL)");
-    db.run("CREATE TABLE IF NOT EXISTS child (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, name TEXT, age_months INTEGER, height REAL, weight REAL)");
-});
+// --- SUPABASE SETUP ---
+const supabaseUrl = process.env.SUPABASE_URL || 'https://yafempnrcasbohhxjlng.supabase.co';
+const supabaseKey = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhZmVtcG5yY2FzYm9oaHhqbG5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2MDA3MjEsImV4cCI6MjA5NDE3NjcyMX0.bwH4P_jfNS2yLraFNW-uVrjzxe4h19mVePMel-lXp3c';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 // --- FRONTEND ---
-// Serving from the local 'public' folder
 const frontendDir = path.join(__dirname, 'public');
 app.use(express.static(frontendDir));
 
 // --- API ENDPOINTS ---
 
-app.post('/api/signup', (req, res) => {
+app.post('/api/signup', async (req, res) => {
     const { name, email, password } = req.body;
-    db.run("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", [name, email, password], function(err) {
-        if (err) return res.status(400).json({ success: false, error: "Email exists" });
-        res.json({ success: true, user: { id: this.lastID, name, email } });
-    });
+    const { data, error } = await supabase.from('users').insert([{ name, email, password }]).select();
+    if (error) return res.status(400).json({ success: false, error: error.message });
+    res.json({ success: true, user: data[0] });
 });
 
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
-    db.get("SELECT * FROM users WHERE email = ? AND password = ?", [email, password], (err, row) => {
-        if (!row) return res.status(401).json({ success: false, error: "Invalid credentials" });
-        db.get("SELECT * FROM profiles WHERE user_id = ?", [row.id], (err, profile) => {
-            res.json({ success: true, user: row, needsOnboarding: !profile });
-        });
-    });
+    const { data: users, error } = await supabase.from('users').select('*').eq('email', email).eq('password', password);
+    if (!users || users.length === 0) return res.status(401).json({ success: false, error: "Invalid credentials" });
+    
+    const user = users[0];
+    const { data: profiles } = await supabase.from('profiles').select('*').eq('user_id', user.id);
+    res.json({ success: true, user, needsOnboarding: !profiles || profiles.length === 0 });
 });
 
-app.post('/api/onboarding', (req, res) => {
+app.post('/api/onboarding', async (req, res) => {
     const { userId, age, gender, height, sugar, heart, systolic, diastolic, weight } = req.body;
-    db.run("INSERT INTO profiles (user_id, age, gender, height) VALUES (?, ?, ?, ?)", [userId, age, gender, height], () => {
-        db.run("INSERT INTO vitals (user_id, date, blood_sugar, systolic, diastolic, heart_rate, weight) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-               [userId, new Date().toISOString().split('T')[0], sugar, systolic, diastolic, heart, weight], () => {
-            res.json({ success: true });
-        });
-    });
+    await supabase.from('profiles').insert([{ user_id: userId, age, gender, height }]);
+    await supabase.from('vitals').insert([{ 
+        user_id: userId, 
+        date: new Date().toISOString().split('T')[0], 
+        blood_sugar: sugar, 
+        systolic, 
+        diastolic, 
+        heart_rate: heart, 
+        weight 
+    }]);
+    res.json({ success: true });
 });
 
-app.get('/api/vitals', (req, res) => {
-    db.all("SELECT * FROM vitals ORDER BY date DESC LIMIT 10", (err, rows) => res.json({ success: true, vitals: rows || [] }));
+app.get('/api/vitals', async (req, res) => {
+    const { data, error } = await supabase.from('vitals').select('*').order('date', { ascending: false }).limit(10);
+    res.json({ success: true, vitals: data || [] });
 });
 
-app.post('/api/vitals', (req, res) => {
+app.post('/api/vitals', async (req, res) => {
     const { userId, blood_sugar, systolic, diastolic, heart_rate, weight } = req.body;
-    db.run("INSERT INTO vitals (user_id, date, blood_sugar, systolic, diastolic, heart_rate, weight) VALUES (?, ?, ?, ?, ?, ?, ?)", 
-           [userId || 1, new Date().toISOString().split('T')[0], blood_sugar, systolic, diastolic, heart_rate, weight], () => {
-        res.json({ success: true });
-    });
+    await supabase.from('vitals').insert([{ 
+        user_id: userId || 1, 
+        date: new Date().toISOString().split('T')[0], 
+        blood_sugar, 
+        systolic, 
+        diastolic, 
+        heart_rate, 
+        weight 
+    }]);
+    res.json({ success: true });
 });
 
 app.post('/api/analyze-lab', (req, res) => {
@@ -93,30 +95,30 @@ app.post('/api/analyze-risk', (req, res) => {
     });
 });
 
-app.get('/api/maternal', (req, res) => {
-    db.get("SELECT * FROM maternal ORDER BY id DESC LIMIT 1", (err, row) => {
-        if (!row) return res.json({ success: false });
-        res.json({ success: true, week: row.week, due_date: row.due_date, weight_gain: row.weight_gain, fetal_heart_rate: row.fetal_hr, iron_level: row.iron });
-    });
+app.get('/api/maternal', async (req, res) => {
+    const { data, error } = await supabase.from('maternal').select('*').order('id', { ascending: false }).limit(1);
+    if (!data || data.length === 0) return res.json({ success: false });
+    const row = data[0];
+    res.json({ success: true, week: row.week, due_date: row.due_date, weight_gain: row.weight_gain, fetal_heart_rate: row.fetal_hr, iron_level: row.iron });
 });
 
-app.post('/api/maternal', (req, res) => {
+app.post('/api/maternal', async (req, res) => {
     const { week, due_date } = req.body;
-    db.run("INSERT INTO maternal (user_id, week, due_date, weight_gain, fetal_hr, iron) VALUES (1, ?, ?, ?, ?, ?)", 
-           [week, due_date, (week * 0.4).toFixed(1), 140, 12], () => res.json({ success: true }));
+    await supabase.from('maternal').insert([{ user_id: 1, week, due_date, weight_gain: (week * 0.4).toFixed(1), fetal_hr: 140, iron: 12 }]);
+    res.json({ success: true });
 });
 
-app.get('/api/child', (req, res) => {
-    db.get("SELECT * FROM child ORDER BY id DESC LIMIT 1", (err, row) => {
-        if (!row) return res.json({ success: false });
-        res.json({ success: true, child_name: row.name, age_months: row.age_months, height_cm: row.height, weight_kg: row.weight });
-    });
+app.get('/api/child', async (req, res) => {
+    const { data, error } = await supabase.from('child').select('*').order('id', { ascending: false }).limit(1);
+    if (!data || data.length === 0) return res.json({ success: false });
+    const row = data[0];
+    res.json({ success: true, child_name: row.name, age_months: row.age_months, height_cm: row.height, weight_kg: row.weight });
 });
 
-app.post('/api/child', (req, res) => {
+app.post('/api/child', async (req, res) => {
     const { child_name, age_months } = req.body;
-    db.run("INSERT INTO child (user_id, name, age_months, height, weight) VALUES (1, ?, ?, ?, ?)", 
-           [child_name, age_months, 75, 10], () => res.json({ success: true }));
+    await supabase.from('child').insert([{ user_id: 1, name: child_name, age_months, height: 75, weight: 10 }]);
+    res.json({ success: true });
 });
 
 app.get('/api/notifications', (req, res) => {
@@ -126,8 +128,6 @@ app.get('/api/notifications', (req, res) => {
     });
 });
 
-app.post('/api/notifications/read', (req, res) => res.json({ success: true }));
-
 app.use((req, res) => res.sendFile(path.join(frontendDir, 'index.html')));
 
-app.listen(PORT, () => console.log(`ArogyaPath Live on Port ${PORT}`));
+app.listen(PORT, () => console.log(`ArogyaPath Cloud Engine Live on Port ${PORT}`));
