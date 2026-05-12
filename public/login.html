@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--olive); color: var(--forest);
+            display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;
+            position: relative; overflow: hidden;
+        }
+
+        /* SVG Noise Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; font-size: 11px; }
+
+        .auth-card {
+            background: var(--cream); border-radius: 2.5rem; padding: 48px; width: 100%; max-width: 460px;
+            z-index: 10; position: relative; box-shadow: 0 25px 50px rgba(1, 71, 46, 0.1);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .input-group { margin-bottom: 24px; }
+        .input-group label { display: block; font-size: 11px; color: var(--forest); opacity: 0.6; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .input-group input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--moss); padding: 12px 0; color: var(--forest); font-size: 16px; font-weight: 500; outline: none; transition: all 0.3s; font-family: 'Inter'; }
+        .input-group input:focus { border-color: var(--forest); }
+        .input-group input::placeholder { color: var(--forest); opacity: 0.3; }
+
+        .btn-primary { width: 100%; padding: 18px; background: var(--forest); border: none; border-radius: 99px; color: var(--cream); font-weight: 700; font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 10px 20px rgba(1, 71, 46, 0.2); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(1, 71, 46, 0.25); }
+        
+        .spinner { border: 2px solid rgba(254, 250, 224, 0.3); border-top-color: var(--cream); border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; display: none; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    
+    <div class="auth-card">
+        <a href="index.html" class="block text-center mb-10 no-underline">
+            <span class="font-anton text-3xl text-[var(--forest)] tracking-tighter">AROGYAPATH</span>
+        </a>
+
+        <div class="text-center mb-10">
+            <h2 class="font-anton text-4xl text-[var(--forest)] mb-2">WELCOME BACK</h2>
+            <p class="font-medium text-[var(--forest)]/60 text-sm">Access your health intelligence hub.</p>
+        </div>
+
+        <form id="login-form">
+            <div class="input-group">
+                <label>Email Address</label>
+                <input type="email" id="email" placeholder="hello@example.com" required>
+            </div>
+            <div class="input-group">
+                <div class="flex justify-between items-center">
+                    <label style="margin-bottom:0;">Password</label>
+                    <a href="#" class="utility-text text-[9px] text-[var(--forest)]/40 hover:text-[var(--forest)] transition-colors">Forgot?</a>
+                </div>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            
+            <div id="error-msg" class="text-red-600 text-sm font-semibold mb-6 hidden text-center bg-red-100 p-3 rounded-xl border border-red-200"></div>
+
+            <button type="submit" class="btn-primary" id="submit-btn">
+                <div class="spinner" id="spinner"></div>
+                <span>Authenticate</span>
+                <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+            </button>
+        </form>
+
+        <p class="text-center text-sm font-medium text-[var(--forest)]/50 mt-8">
+            No account? <a href="signup.html" class="text-[var(--forest)] hover:underline font-bold transition-colors">Register</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submit-btn');
+            const spinner = document.getElementById('spinner');
+            const errorMsg = document.getElementById('error-msg');
+            
+            btn.disabled = true;
+            spinner.style.display = 'block';
+            btn.querySelector('span').innerText = 'Verifying...';
+            errorMsg.classList.add('hidden');
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                console.log("Login Response:", data);
+                
+                if (data.success) {
+                    localStorage.setItem('arogyapath_user', JSON.stringify(data.user));
+                    if (data.needsOnboarding) {
+                        window.location.href = 'onboarding.html';
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } else {
+                    throw new Error(data.error || "Authentication failed");
+                }
+            } catch (err) {
+                errorMsg.innerText = err.message;
+                errorMsg.classList.remove('hidden');
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btn.querySelector('span').innerText = 'Authenticate';
+            }
+        });
+    </script>
+</body>
+</html>

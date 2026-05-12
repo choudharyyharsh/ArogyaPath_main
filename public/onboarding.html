@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onboarding | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--olive); color: var(--forest);
+            display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0;
+            position: relative; overflow: hidden;
+        }
+
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.15em; font-weight: 700; font-size: 11px; }
+
+        .onboarding-card {
+            background: var(--cream); border-radius: 3rem; padding: 60px; width: 100%; max-width: 600px;
+            z-index: 10; position: relative; box-shadow: 0 40px 100px rgba(1, 71, 46, 0.15);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(40px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .step { display: none; }
+        .step.active { display: block; animation: fadeIn 0.5s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .input-group { margin-bottom: 24px; }
+        .input-group label { display: block; font-size: 11px; color: var(--forest); opacity: 0.6; margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .input-group input, .input-group select { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--moss); padding: 12px 0; color: var(--forest); font-size: 18px; font-weight: 500; outline: none; transition: all 0.3s; font-family: 'Inter'; }
+        .input-group input:focus, .input-group select:focus { border-color: var(--forest); }
+
+        .btn-primary { width: 100%; padding: 20px; background: var(--forest); border: none; border-radius: 99px; color: var(--cream); font-weight: 700; font-size: 14px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: all 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(1, 71, 46, 0.2); }
+
+        .progress-bar { height: 4px; background: var(--moss); border-radius: 2px; margin-bottom: 40px; position: relative; }
+        .progress-fill { height: 100%; background: var(--forest); border-radius: 2px; transition: width 0.5s ease; width: 33%; }
+    </style>
+</head>
+<body>
+    
+    <div class="onboarding-card">
+        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+        <div class="step active" id="step-1">
+            <h2 class="font-anton text-4xl mb-2 text-[var(--forest)]">PROFILE SETUP</h2>
+            <p class="font-medium text-[var(--forest)]/60 mb-10 uppercase tracking-widest text-[10px]">Step 01 / 03</p>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div class="input-group">
+                    <label>Age</label>
+                    <input type="number" id="age" placeholder="25" required>
+                </div>
+                <div class="input-group">
+                    <label>Gender</label>
+                    <select id="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Height (cm)</label>
+                <input type="number" id="height" placeholder="175" required>
+            </div>
+            
+            <button class="btn-primary mt-8" onclick="nextStep(2)">
+                <span>Continue</span>
+                <iconify-icon icon="lucide:arrow-right"></iconify-icon>
+            </button>
+        </div>
+
+        <div class="step" id="step-2">
+            <h2 class="font-anton text-4xl mb-2 text-[var(--forest)]">INITIAL VITALS</h2>
+            <p class="font-medium text-[var(--forest)]/60 mb-10 uppercase tracking-widest text-[10px]">Step 02 / 03</p>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div class="input-group">
+                    <label>Blood Sugar (mg/dL)</label>
+                    <input type="number" id="sugar" placeholder="95" required>
+                </div>
+                <div class="input-group">
+                    <label>Heart Rate (BPM)</label>
+                    <input type="number" id="heart" placeholder="72" required>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-6">
+                <div class="input-group">
+                    <label>Systolic BP</label>
+                    <input type="number" id="systolic" placeholder="120" required>
+                </div>
+                <div class="input-group">
+                    <label>Diastolic BP</label>
+                    <input type="number" id="diastolic" placeholder="80" required>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>Current Weight (kg)</label>
+                <input type="number" id="weight" placeholder="70" required step="0.1">
+            </div>
+            
+            <div class="flex gap-4 mt-8">
+                <button class="btn-primary bg-transparent border-2 border-[var(--forest)] text-[var(--forest)] shadow-none" onclick="nextStep(1)">
+                    <iconify-icon icon="lucide:arrow-left"></iconify-icon>
+                    <span>Back</span>
+                </button>
+                <button class="btn-primary" onclick="submitOnboarding()">
+                    <span>Complete</span>
+                    <iconify-icon icon="lucide:check"></iconify-icon>
+                </button>
+            </div>
+        </div>
+
+        <div class="step text-center" id="step-3">
+            <div class="w-24 h-24 rounded-full bg-[var(--forest)] text-[var(--cream)] flex items-center justify-center text-5xl mx-auto mb-8 shadow-xl">
+                <iconify-icon icon="lucide:sparkles"></iconify-icon>
+            </div>
+            <h2 class="font-anton text-5xl mb-4 text-[var(--forest)]">ECOSYSTEM READY</h2>
+            <p class="font-medium text-[var(--forest)]/60 mb-12 max-w-xs mx-auto">Your intelligence hub has been initialized. Welcome to the future of preventive care.</p>
+            
+            <button class="btn-primary" onclick="window.location.href='dashboard.html'">
+                <span>Enter Dashboard</span>
+                <iconify-icon icon="lucide:layout-dashboard"></iconify-icon>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function nextStep(step) {
+            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+            document.getElementById(`step-${step}`).classList.add('active');
+            document.getElementById('progress-fill').style.width = (step / 3 * 100) + '%';
+        }
+
+        async function submitOnboarding() {
+            const user = JSON.parse(localStorage.getItem('arogyapath_user'));
+            const data = {
+                userId: user.id,
+                age: document.getElementById('age').value,
+                gender: document.getElementById('gender').value,
+                height: document.getElementById('height').value,
+                sugar: document.getElementById('sugar').value,
+                heart: document.getElementById('heart').value,
+                systolic: document.getElementById('systolic').value,
+                diastolic: document.getElementById('diastolic').value,
+                weight: document.getElementById('weight').value
+            };
+
+            try {
+                const res = await fetch('/api/onboarding', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    nextStep(3);
+                } else {
+                    const errorData = await res.json();
+                    alert("Error: " + (errorData.error || "Failed to save data."));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Connection error: Cannot reach the healthcare server.");
+            }
+        }
+    </script>
+</body>
+</html>

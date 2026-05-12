@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Risk Prediction | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--olive);
+            color: var(--forest);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* SVG Noise Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-size: 11px; }
+
+        .card { background: var(--cream); border-radius: 2.5rem; padding: 32px; box-shadow: 0 10px 30px rgba(1, 71, 46, 0.05); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(1, 71, 46, 0.08); }
+
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 99px; color: var(--forest); opacity: 0.6; transition: all 0.3s; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .sidebar-item:hover { background: rgba(1, 71, 46, 0.05); opacity: 1; }
+        .sidebar-item.active { background: var(--forest); color: var(--cream); opacity: 1; }
+
+        .symptom-btn { background: transparent; border: 2px solid var(--moss); color: var(--forest); padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .symptom-btn.selected { background: var(--forest); border-color: var(--forest); color: var(--cream); transform: translateY(-2px); box-shadow: 0 10px 20px rgba(1, 71, 46, 0.2); }
+
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: var(--cream); cursor: pointer; border: 4px solid var(--forest); box-shadow: 0 4px 10px rgba(1, 71, 46, 0.3); margin-top: -10px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--moss); border-radius: 2px; }
+
+        .btn-primary { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 16px 32px; border-radius: 99px; background: var(--forest); color: var(--cream); border: none; cursor: pointer; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s; box-shadow: 0 15px 30px rgba(1, 71, 46, 0.2); width: 100%; }
+        .btn-primary:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(1, 71, 46, 0.3); }
+        .btn-primary:disabled { opacity: 0.7; transform: none; cursor: not-allowed; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--moss); border-radius: 99px; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .spinner { border: 2px solid rgba(254, 250, 224, 0.3); border-top-color: var(--cream); border-radius: 50%; width: 16px; height: 16px; animation: spin 1s linear infinite; }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 h-full w-[260px] z-40 flex flex-col border-r border-forest/10 bg-[var(--sage)]">
+        <a href="index.html" class="flex items-center gap-2 px-8 py-10 no-underline">
+            <span class="font-anton text-2xl text-[var(--forest)] tracking-tighter">AROGYAPATH</span>
+        </a>
+
+        <nav class="flex-1 px-4 flex flex-col gap-2 overflow-y-auto">
+            <a href="dashboard.html" class="sidebar-item"><iconify-icon icon="lucide:layout-dashboard" class="text-xl"></iconify-icon> Dashboard</a>
+            <a href="risk.html" class="sidebar-item active"><iconify-icon icon="lucide:brain" class="text-xl"></iconify-icon> Risk AI</a>
+            <a href="lab.html" class="sidebar-item"><iconify-icon icon="lucide:file-text" class="text-xl"></iconify-icon> Lab Reports</a>
+            <a href="maternal.html" class="sidebar-item"><iconify-icon icon="lucide:baby" class="text-xl"></iconify-icon> Maternal Care</a>
+            <a href="child.html" class="sidebar-item"><iconify-icon icon="lucide:child" class="text-xl"></iconify-icon> Child Care</a>
+            <a href="emergency.html" class="sidebar-item text-red-600 opacity-90"><iconify-icon icon="lucide:siren" class="text-xl"></iconify-icon> Emergency</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col" style="margin-left: 260px;">
+        <!-- Topbar -->
+        <header class="sticky top-0 z-30 flex items-center justify-between px-10 py-6 bg-[var(--olive)]/90 backdrop-blur-md border-b border-forest/5">
+            <h1 class="text-2xl font-bold text-[var(--forest)] tracking-tight">AI Risk Prediction</h1>
+            <a href="profile.html" id="header-user-initials" class="w-12 h-12 rounded-full flex items-center justify-center utility-text text-[var(--cream)] bg-[var(--forest)] shadow-md transition-transform hover:scale-105">--</a>
+        </header>
+
+        <main class="flex-1 p-10 overflow-y-auto">
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                
+                <!-- Input Panel -->
+                <div class="flex flex-col gap-8">
+                    <div class="card">
+                        <h3 class="utility-text mb-6 text-[var(--forest)] opacity-60">Symptom Selector</h3>
+                        <div class="flex flex-wrap gap-3" id="symptom-container">
+                            <!-- Symptoms rendered via JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3 class="utility-text mb-8 text-[var(--forest)] opacity-60">Physiological Baselines</h3>
+                        
+                        <div class="mb-8">
+                            <div class="flex justify-between font-semibold text-sm mb-4"><span class="text-[var(--forest)]">Systolic Pressure</span><span class="text-[var(--forest)]" id="bp-val">120 mmHg</span></div>
+                            <input type="range" id="bp-slider" min="80" max="200" value="120" oninput="updateSlider('bp', this.value, 'mmHg')">
+                        </div>
+                        
+                        <div class="mb-8">
+                            <div class="flex justify-between font-semibold text-sm mb-4"><span class="text-[var(--forest)]">Fasting Glucose</span><span class="text-[var(--forest)]" id="sugar-val">95 mg/dL</span></div>
+                            <input type="range" id="sugar-slider" min="60" max="300" value="95" oninput="updateSlider('sugar', this.value, 'mg/dL')">
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between font-semibold text-sm mb-4"><span class="text-[var(--forest)]">Body Mass (Weight)</span><span class="text-[var(--forest)]" id="weight-val">72 kg</span></div>
+                            <input type="range" id="weight-slider" min="30" max="150" value="72" oninput="updateSlider('weight', this.value, 'kg')">
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary utility-text tracking-widest text-sm" id="analyze-btn" onclick="runAnalysis()">
+                        Execute Analysis
+                    </button>
+                </div>
+
+                <!-- Result Panel -->
+                <div class="flex flex-col gap-8">
+                    
+                    <!-- Empty State -->
+                    <div id="empty-state" class="card flex flex-col items-center justify-center text-center h-full min-h-[500px]">
+                        <div class="w-24 h-24 rounded-full bg-[var(--moss)]/20 flex items-center justify-center mb-6 text-[var(--forest)]/40 text-4xl">
+                            <iconify-icon icon="lucide:brain-circuit"></iconify-icon>
+                        </div>
+                        <h2 class="font-anton text-4xl mb-4 text-[var(--forest)] opacity-30">AWAITING DATA</h2>
+                        <p class="font-medium text-[var(--forest)]/60 text-sm max-w-xs leading-relaxed">Provide your symptoms and vitals to generate a high-end predictive health report.</p>
+                    </div>
+
+                    <!-- Results State -->
+                    <div id="result-state" class="hidden flex-col gap-8 h-full">
+                        <div class="card text-center relative overflow-hidden flex flex-col items-center justify-center min-h-[300px]">
+                            
+                            <h2 class="font-anton text-[8rem] leading-none mb-2 text-[var(--forest)]" id="score-val">--</h2>
+                            <p class="utility-text text-lg mb-8 text-[var(--moss)]" id="score-label">--</p>
+                            
+                            <div class="w-full text-left space-y-6">
+                                <div>
+                                    <div class="flex justify-between utility-text text-[10px] mb-2"><span class="text-[var(--forest)]/60">Metabolic Risk</span><span id="risk-d-val" class="text-[var(--forest)]">--%</span></div>
+                                    <div class="w-full h-3 rounded-full bg-[var(--moss)]/30 overflow-hidden"><div id="risk-d-bar" class="h-full rounded-full bg-[var(--forest)] transition-all duration-1000 w-0"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between utility-text text-[10px] mb-2"><span class="text-[var(--forest)]/60">Cardiovascular Risk</span><span id="risk-c-val" class="text-[var(--forest)]">--%</span></div>
+                                    <div class="w-full h-3 rounded-full bg-[var(--moss)]/30 overflow-hidden"><div id="risk-c-bar" class="h-full rounded-full bg-[var(--forest)] transition-all duration-1000 w-0"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card flex-1">
+                            <h3 class="utility-text mb-6 text-[var(--forest)] opacity-60">Editorial Prescriptions</h3>
+                            <ul class="flex flex-col gap-4" id="suggestions-list">
+                                <!-- Populated via JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const symptomsList = ["Fatigue","Headache","Chest Pain","Shortness of Breath","Dizziness","Nausea","Blurred Vision","Frequent Urination","Excessive Thirst","Numbness"];
+        let selectedSymptoms = [];
+
+        // Render symptoms
+        const container = document.getElementById('symptom-container');
+        symptomsList.forEach(s => {
+            const btn = document.createElement('button');
+            btn.className = 'symptom-btn';
+            btn.innerText = s;
+            btn.onclick = () => {
+                if (selectedSymptoms.includes(s)) {
+                    selectedSymptoms = selectedSymptoms.filter(x => x !== s);
+                    btn.classList.remove('selected');
+                } else {
+                    selectedSymptoms.push(s);
+                    btn.classList.add('selected');
+                }
+            };
+            container.appendChild(btn);
+        });
+
+        // Sliders
+        function updateSlider(id, val, unit) {
+            document.getElementById(`${id}-val`).innerText = `${val} ${unit}`;
+        }
+
+        // Logic (Connected to API)
+        async function runAnalysis() {
+            const btn = document.getElementById('analyze-btn');
+            btn.innerHTML = `<div class="spinner"></div> <span class="utility-text">Processing...</span>`;
+            btn.disabled = true;
+
+            const vitals = {
+                bp: parseInt(document.getElementById('bp-slider').value),
+                sugar: parseInt(document.getElementById('sugar-slider').value),
+                weight: parseInt(document.getElementById('weight-slider').value)
+            };
+
+            try {
+                const res = await fetch('/api/analyze-risk', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ symptoms: selectedSymptoms, vitals: vitals })
+                });
+                
+                const data = await res.json();
+                
+                setTimeout(() => {
+                    const { overallScore, diabetesRisk, cardiacRisk, suggestions } = data;
+
+                    document.getElementById('empty-state').style.display = 'none';
+                    document.getElementById('result-state').style.display = 'flex';
+                    
+                    document.getElementById('score-val').innerText = overallScore;
+                    document.getElementById('score-label').innerText = overallScore < 35 ? "OPTIMAL" : overallScore < 65 ? "ELEVATED" : "CRITICAL";
+
+                    document.getElementById('diabetes-status').innerText = diabetesRisk;
+                    document.getElementById('cardiac-status').innerText = cardiacRisk;
+
+                    const list = document.getElementById('suggestions-list');
+                    list.innerHTML = suggestions.map(s => `
+                        <div class="flex items-start gap-4 p-5 bg-[var(--forest)]/5 rounded-3xl">
+                            <iconify-icon icon="lucide:check-circle" class="text-xl mt-1 text-[var(--forest)]"></iconify-icon>
+                            <p class="text-sm font-medium leading-relaxed">${s}</p>
+                        </div>
+                    `).join('');
+
+                    btn.innerHTML = `<iconify-icon icon="lucide:zap" class="text-xl"></iconify-icon> <span class="utility-text">Analyze Again</span>`;
+                    btn.disabled = false;
+                }, 2000);
+            } catch (err) {
+                console.error("Analysis error", err);
+                alert("Failed to reach backend.");
+                btn.disabled = false;
+            }
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('arogyapath_user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    const names = user.name.trim().split(' ');
+                    let initials = names[0].charAt(0).toUpperCase();
+                    if (names.length > 1) {
+                        initials += names[names.length - 1].charAt(0).toUpperCase();
+                    }
+                    const icon = document.getElementById('header-user-initials');
+                    if (icon) icon.innerText = initials;
+                } catch(e) {}
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maternal Care | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--olive);
+            color: var(--forest);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* SVG Noise Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-size: 11px; }
+
+        .card { background: var(--cream); border-radius: 2.5rem; padding: 32px; box-shadow: 0 10px 30px rgba(1, 71, 46, 0.05); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(1, 71, 46, 0.08); }
+
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 99px; color: var(--forest); opacity: 0.6; transition: all 0.3s; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .sidebar-item:hover { background: rgba(1, 71, 46, 0.05); opacity: 1; }
+        .sidebar-item.active { background: var(--forest); color: var(--cream); opacity: 1; }
+
+        .trimester-box { background: rgba(163, 177, 138, 0.1); border: 2px solid transparent; border-radius: 1.5rem; padding: 24px; text-align: center; opacity: 0.6; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .trimester-box.active { background: var(--cream); border-color: var(--forest); opacity: 1; box-shadow: 0 15px 30px rgba(1, 71, 46, 0.1); transform: translateY(-4px); }
+
+        .badge { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .badge-success { background: var(--sage); color: var(--forest); }
+        .badge-warning { background: #e9edc9; color: var(--forest); border: 1px solid var(--forest); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--moss); border-radius: 99px; }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 h-full w-[260px] z-40 flex flex-col border-r border-forest/10 bg-[var(--sage)]">
+        <a href="index.html" class="flex items-center gap-2 px-8 py-10 no-underline">
+            <span class="font-anton text-2xl text-[var(--forest)] tracking-tighter">AROGYAPATH</span>
+        </a>
+
+        <nav class="flex-1 px-4 flex flex-col gap-2 overflow-y-auto">
+            <a href="dashboard.html" class="sidebar-item"><iconify-icon icon="lucide:layout-dashboard" class="text-xl"></iconify-icon> Dashboard</a>
+            <a href="risk.html" class="sidebar-item"><iconify-icon icon="lucide:brain" class="text-xl"></iconify-icon> Risk AI</a>
+            <a href="lab.html" class="sidebar-item"><iconify-icon icon="lucide:file-text" class="text-xl"></iconify-icon> Lab Reports</a>
+            <a href="maternal.html" class="sidebar-item active"><iconify-icon icon="lucide:baby" class="text-xl"></iconify-icon> Maternal Care</a>
+            <a href="child.html" class="sidebar-item"><iconify-icon icon="lucide:child" class="text-xl"></iconify-icon> Child Care</a>
+            <a href="emergency.html" class="sidebar-item text-red-600 opacity-90"><iconify-icon icon="lucide:siren" class="text-xl"></iconify-icon> Emergency</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col" style="margin-left: 260px;">
+        <header class="sticky top-0 z-30 flex items-center justify-between px-10 py-6 bg-[var(--olive)]/90 backdrop-blur-md border-b border-forest/5">
+            <h1 class="text-2xl font-bold text-[var(--forest)] tracking-tight">Maternal Care</h1>
+            <a href="profile.html" id="header-user-initials" class="w-12 h-12 rounded-full flex items-center justify-center utility-text text-[var(--cream)] bg-[var(--forest)] shadow-md transition-transform hover:scale-105">--</a>
+        </header>
+
+        <main class="flex-1 p-10 overflow-y-auto">
+            
+            <div class="flex items-end justify-between mb-10">
+                <div>
+                    <p class="utility-text text-[var(--forest)]/50 mb-2">Current Status</p>
+                    <h2 class="font-anton text-[4rem] leading-none text-[var(--forest)]">WEEK 24</h2>
+                </div>
+                <div class="text-right">
+                    <p class="utility-text text-[var(--forest)]/50 mb-2">Est. Due Date</p>
+                    <p class="font-bold text-xl text-[var(--forest)]">September 15, 2026</p>
+                </div>
+            </div>
+
+            <!-- Timeline -->
+            <div class="grid grid-cols-3 gap-6 mb-12">
+                <div class="trimester-box">
+                    <p class="utility-text text-[var(--forest)]/50 mb-2">Weeks 1 - 13</p>
+                    <p class="font-bold text-lg mb-2 text-[var(--forest)]">Trimester 1</p>
+                    <p class="utility-text text-[var(--forest)]">Completed</p>
+                </div>
+                <div class="trimester-box active">
+                    <p class="utility-text text-[var(--forest)]/50 mb-2">Weeks 14 - 27</p>
+                    <p class="font-bold text-lg mb-2 text-[var(--forest)]">Trimester 2</p>
+                    <p class="utility-text text-[var(--forest)] animate-pulse">In Progress</p>
+                </div>
+                <div class="trimester-box border-dashed border-2 border-[var(--moss)] bg-transparent">
+                    <p class="utility-text text-[var(--forest)]/50 mb-2">Weeks 28 - 40</p>
+                    <p class="font-bold text-lg mb-2 text-[var(--forest)]">Trimester 3</p>
+                    <p class="utility-text text-[var(--forest)]/40">Upcoming</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                
+                <div class="flex flex-col gap-8">
+                    <div class="card h-full">
+                        <h3 class="utility-text mb-8 text-[var(--forest)] opacity-60 flex items-center gap-2"><iconify-icon icon="lucide:activity"></iconify-icon> Maternal Vitals</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-5 rounded-[1.5rem] bg-[var(--olive)]/50 border border-[var(--sage)]">
+                                <div><p class="utility-text text-[var(--forest)]/50 mb-1">Weight Gain</p><p class="font-anton text-3xl text-[var(--forest)]">12.5 <span class="text-sm font-inter">kg</span></p></div>
+                                <span class="badge badge-success">On Track</span>
+                            </div>
+                            <div class="flex justify-between items-center p-5 rounded-[1.5rem] bg-[var(--olive)]/50 border border-[var(--sage)]">
+                                <div><p class="utility-text text-[var(--forest)]/50 mb-1">Fetal Heart Rate</p><p class="font-anton text-3xl text-[var(--forest)]">140 <span class="text-sm font-inter">bpm</span></p></div>
+                                <span class="badge badge-success">Optimal</span>
+                            </div>
+                            <div class="flex justify-between items-center p-5 rounded-[1.5rem] bg-[var(--sage)]/30 border border-[var(--forest)]/20">
+                                <div><p class="utility-text text-[var(--forest)]/50 mb-1">Iron Levels (Hb)</p><p class="font-anton text-3xl text-[var(--forest)]">11.8 <span class="text-sm font-inter">g/dL</span></p></div>
+                                <span class="badge badge-warning">Monitor</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-8">
+                    <div class="card bg-[var(--sage)]/20 border border-[var(--moss)]/30">
+                        <h3 class="utility-text mb-6 text-[var(--forest)] flex items-center gap-2"><iconify-icon icon="ph:leaf-duotone"></iconify-icon> Nutritional Guidance</h3>
+                        <p class="text-[var(--forest)] text-lg font-medium leading-relaxed">
+                            At Week 24, fetal development is accelerating. Your recent iron levels require attention. 
+                            <br><br>
+                            <span class="opacity-80">We recommend incorporating high-iron organic produce like spinach and lentils. Pair with citrus (Vitamin C) to maximize absorption.</span>
+                        </p>
+                    </div>
+
+                    <div class="card flex-1">
+                        <h3 class="utility-text mb-6 text-[var(--forest)] opacity-60 flex items-center gap-2"><iconify-icon icon="lucide:calendar-check"></iconify-icon> Upcoming Scans</h3>
+                        <ul class="space-y-4">
+                            <li class="flex items-center gap-4 border-b-2 border-[var(--sage)]/50 pb-4">
+                                <div class="w-10 h-10 rounded-full bg-[var(--moss)]/30 text-[var(--forest)] flex items-center justify-center"><iconify-icon icon="lucide:check"></iconify-icon></div>
+                                <div class="flex-1"><p class="font-bold text-[var(--forest)] opacity-50 line-through">Anomaly Scan (TIFFA)</p></div>
+                            </li>
+                            <li class="flex items-center gap-4 border-b-2 border-[var(--sage)]/50 pb-4">
+                                <div class="w-10 h-10 rounded-full border-2 border-[var(--forest)] flex items-center justify-center"></div>
+                                <div class="flex-1"><p class="font-bold text-[var(--forest)] text-lg">Glucose Tolerance Test</p><p class="utility-text text-[var(--forest)]/60 mt-1">Due next week (Week 25)</p></div>
+                                <button class="utility-text px-6 py-3 bg-[var(--forest)] text-[var(--cream)] rounded-full hover:-translate-y-1 transition-transform shadow-md">Book</button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Maternal Setup Modal -->
+    <div id="setup-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[var(--forest)]/40 backdrop-blur-sm p-6">
+        <div class="bg-[var(--cream)] w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl">
+            <h2 class="font-anton text-4xl text-[var(--forest)] mb-4 text-center">PREGNANCY SETUP</h2>
+            <p class="utility-text text-[var(--forest)]/60 text-center mb-10">Enter your clinical markers to initialize intelligence.</p>
+            
+            <div class="space-y-6 mb-10">
+                <div class="space-y-2">
+                    <label class="utility-text opacity-60">Current Week</label>
+                    <input type="number" id="setup-week" placeholder="e.g. 24" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)]">
+                </div>
+                <div class="space-y-2">
+                    <label class="utility-text opacity-60">Due Date (Est.)</label>
+                    <input type="date" id="setup-due" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)]">
+                </div>
+            </div>
+
+            <button id="setup-btn" onclick="saveMaternalSetup()" class="w-full bg-[var(--forest)] text-[var(--cream)] py-6 rounded-full font-anton text-xl tracking-wider hover:translate-y-[-4px] hover:shadow-xl transition-all">
+                START TRACKING
+            </button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userStr = localStorage.getItem('arogyapath_user');
+            if (!userStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userStr);
+                const names = user.name.trim().split(' ');
+                let initials = names[0].charAt(0).toUpperCase();
+                if (names.length > 1) initials += names[names.length - 1].charAt(0).toUpperCase();
+                document.getElementById('header-user-initials').innerText = initials;
+
+                // Fetch Maternal Data
+                const res = await fetch('/api/maternal');
+                const data = await res.json();
+                
+                if (data.week) {
+                    document.querySelector('h2.font-anton').innerText = `WEEK ${data.week}`;
+                    const dDate = new Date(data.due_date);
+                    document.querySelector('.text-right p.font-bold').innerText = dDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                    
+                    // Vitals
+                    const cards = document.querySelectorAll('.font-anton');
+                    cards[1].innerHTML = `${data.weight_gain} <span class="text-sm font-inter">kg</span>`;
+                    cards[2].innerHTML = `${data.fetal_heart_rate} <span class="text-sm font-inter">bpm</span>`;
+                    cards[3].innerHTML = `${data.iron_level} <span class="text-sm font-inter">g/dL</span>`;
+
+                    // Update Trimester Highlighting
+                    const boxes = document.querySelectorAll('.trimester-box');
+                    boxes.forEach(b => b.classList.remove('active'));
+                    if (data.week <= 13) boxes[0].classList.add('active');
+                    else if (data.week <= 27) boxes[1].classList.add('active');
+                    else boxes[2].classList.add('active');
+                } else {
+                    // Show setup modal if no data exists
+                    document.getElementById('setup-modal').classList.remove('hidden');
+                    document.getElementById('setup-modal').classList.add('flex');
+                }
+            } catch(e) {
+                console.error("Failed to load maternal intelligence:", e);
+            }
+        });
+
+        async function saveMaternalSetup() {
+            const btn = document.getElementById('setup-btn');
+            btn.innerText = "PROCESSING INTELLIGENCE...";
+            btn.disabled = true;
+
+            const data = {
+                week: document.getElementById('setup-week').value,
+                due_date: document.getElementById('setup-due').value
+            };
+
+            try {
+                console.log("Sending setup data:", data);
+                const res = await fetch('/api/maternal', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    alert("Pregnancy Profile Initialized Successfully!");
+                    window.location.reload();
+                } else {
+                    const err = await res.json();
+                    alert("Error: " + err.error);
+                    btn.innerText = "START TRACKING";
+                    btn.disabled = false;
+                }
+            } catch(e) {
+                console.error("Setup error:", e);
+                alert("Connection failed. Ensure backend is running on 3005.");
+                btn.innerText = "START TRACKING";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

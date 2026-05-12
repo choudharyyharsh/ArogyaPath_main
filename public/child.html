@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Child Care | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--olive);
+            color: var(--forest);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* SVG Noise Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-size: 11px; }
+
+        .card { background: var(--cream); border-radius: 2.5rem; padding: 32px; box-shadow: 0 10px 30px rgba(1, 71, 46, 0.05); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(1, 71, 46, 0.08); }
+
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 99px; color: var(--forest); opacity: 0.6; transition: all 0.3s; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .sidebar-item:hover { background: rgba(1, 71, 46, 0.05); opacity: 1; }
+        .sidebar-item.active { background: var(--forest); color: var(--cream); opacity: 1; }
+
+        .timeline-line { position: absolute; left: 15px; top: 20px; bottom: 0; width: 3px; background: rgba(163, 177, 138, 0.3); z-index: 0; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--moss); border-radius: 99px; }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 h-full w-[260px] z-40 flex flex-col border-r border-forest/10 bg-[var(--sage)]">
+        <a href="index.html" class="flex items-center gap-2 px-8 py-10 no-underline">
+            <span class="font-anton text-2xl text-[var(--forest)] tracking-tighter">AROGYAPATH</span>
+        </a>
+
+        <nav class="flex-1 px-4 flex flex-col gap-2 overflow-y-auto">
+            <a href="dashboard.html" class="sidebar-item"><iconify-icon icon="lucide:layout-dashboard" class="text-xl"></iconify-icon> Dashboard</a>
+            <a href="risk.html" class="sidebar-item"><iconify-icon icon="lucide:brain" class="text-xl"></iconify-icon> Risk AI</a>
+            <a href="lab.html" class="sidebar-item"><iconify-icon icon="lucide:file-text" class="text-xl"></iconify-icon> Lab Reports</a>
+            <a href="maternal.html" class="sidebar-item"><iconify-icon icon="lucide:baby" class="text-xl"></iconify-icon> Maternal Care</a>
+            <a href="child.html" class="sidebar-item active"><iconify-icon icon="lucide:child" class="text-xl"></iconify-icon> Child Care</a>
+            <a href="emergency.html" class="sidebar-item text-red-600 opacity-90"><iconify-icon icon="lucide:siren" class="text-xl"></iconify-icon> Emergency</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col" style="margin-left: 260px;">
+        <header class="sticky top-0 z-30 flex items-center justify-between px-10 py-6 bg-[var(--olive)]/90 backdrop-blur-md border-b border-forest/5">
+            <h1 class="text-2xl font-bold text-[var(--forest)] tracking-tight">Pediatric Care</h1>
+            <a href="profile.html" id="header-user-initials" class="w-12 h-12 rounded-full flex items-center justify-center utility-text text-[var(--cream)] bg-[var(--forest)] shadow-md transition-transform hover:scale-105">--</a>
+        </header>
+
+        <main class="flex-1 p-10 overflow-y-auto">
+            
+            <!-- Child Profile Header -->
+            <div class="flex items-center gap-8 mb-10 card bg-[var(--cream)] border-2 border-[var(--sage)] shadow-sm">
+                <div class="w-24 h-24 rounded-full bg-[var(--forest)] flex items-center justify-center border-4 border-[var(--moss)]/50">
+                    <iconify-icon icon="lucide:smile" class="text-[3rem] text-[var(--cream)]"></iconify-icon>
+                </div>
+                <div>
+                    <h2 class="font-anton text-[4rem] leading-none text-[var(--forest)]">ARYAN SHARMA</h2>
+                    <div class="flex gap-6 mt-3 utility-text text-[var(--forest)]/60">
+                        <span class="flex items-center gap-2"><iconify-icon icon="lucide:calendar"></iconify-icon> AGE: 14 MONTHS</span>
+                        <span class="flex items-center gap-2"><iconify-icon icon="lucide:ruler"></iconify-icon> HT: 78 CM</span>
+                        <span class="flex items-center gap-2"><iconify-icon icon="lucide:weight"></iconify-icon> WT: 10.2 KG</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+                
+                <!-- Growth Chart -->
+                <div class="card bg-white border-2 border-[var(--olive)]">
+                    <h3 class="utility-text mb-6 text-[var(--forest)] opacity-60 flex items-center gap-2"><iconify-icon icon="lucide:line-chart"></iconify-icon> Growth Percentile (Weight)</h3>
+                    <div class="relative h-[300px] w-full">
+                        <canvas id="growthChart"></canvas>
+                    </div>
+                    <p class="utility-text text-[var(--forest)]/40 mt-6 text-center">Tracked against WHO 50th Percentile standard</p>
+                </div>
+
+                <!-- Vaccination Timeline -->
+                <div class="card relative overflow-hidden bg-white border-2 border-[var(--olive)]">
+                    <h3 class="utility-text mb-8 text-[var(--forest)] opacity-60 flex items-center gap-2"><iconify-icon icon="lucide:shield-check"></iconify-icon> Vaccination Schedule</h3>
+                    
+                    <div class="relative pl-10 space-y-8">
+                        <div class="timeline-line"></div>
+                        
+                        <!-- Done -->
+                        <div class="relative z-10">
+                            <div class="absolute -left-10 w-8 h-8 rounded-full bg-[var(--sage)] flex items-center justify-center border-4 border-white shadow-sm">
+                                <iconify-icon icon="lucide:check" class="text-[var(--forest)] text-xs"></iconify-icon>
+                            </div>
+                            <h4 class="font-bold text-[var(--forest)] text-lg">9 Months</h4>
+                            <p class="text-sm font-medium text-[var(--forest)]/60 mt-1">Measles, Mumps, Rubella (MMR 1)</p>
+                        </div>
+                        
+                        <!-- Upcoming -->
+                        <div class="relative z-10">
+                            <div class="absolute -left-10 w-8 h-8 rounded-full bg-[var(--forest)] flex items-center justify-center border-4 border-white shadow-md">
+                                <div class="w-2.5 h-2.5 rounded-full bg-[var(--cream)] animate-pulse"></div>
+                            </div>
+                            <div class="bg-[var(--sage)]/20 border-2 border-[var(--sage)] rounded-2xl p-5 inline-block">
+                                <h4 class="font-bold text-[var(--forest)] text-lg flex items-center gap-3">
+                                    15 Months 
+                                    <span class="utility-text text-[9px] bg-[var(--forest)] text-[var(--cream)] px-2 py-1 rounded-full">Next Month</span>
+                                </h4>
+                                <ul class="text-sm font-medium text-[var(--forest)]/80 mt-3 space-y-2 list-disc list-inside">
+                                    <li>Chickenpox (Varicella 1)</li>
+                                    <li>Pneumococcal Conjugate (PCV 4)</li>
+                                </ul>
+                                <button class="mt-5 utility-text bg-[var(--forest)] text-[var(--cream)] px-5 py-3 rounded-full hover:-translate-y-1 transition-transform shadow-md">Schedule Apt.</button>
+                            </div>
+                        </div>
+
+                        <!-- Future -->
+                        <div class="relative z-10 opacity-40">
+                            <div class="absolute -left-10 w-8 h-8 rounded-full bg-[var(--cream)] border-4 border-white shadow-sm"></div>
+                            <h4 class="font-bold text-[var(--forest)] text-lg">18 Months</h4>
+                            <p class="text-sm font-medium text-[var(--forest)]/60 mt-1">Diphtheria, Tetanus, Pertussis (DTaP 4)</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Child Setup Modal -->
+    <div id="setup-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[var(--forest)]/40 backdrop-blur-sm p-6">
+        <div class="bg-[var(--cream)] w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl">
+            <h2 class="font-anton text-4xl text-[var(--forest)] mb-4 text-center">CHILD PROFILE SETUP</h2>
+            <p class="utility-text text-[var(--forest)]/60 text-center mb-10">Initialize pediatric tracking for your child.</p>
+            
+            <div class="space-y-6 mb-10">
+                <div class="space-y-2">
+                    <label class="utility-text opacity-60">Child's Name</label>
+                    <input type="text" id="setup-name" placeholder="e.g. Aryan" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)]">
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="utility-text opacity-60">Age (Months)</label>
+                        <input type="number" id="setup-age" placeholder="e.g. 14" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)]">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="utility-text opacity-60">Weight (kg)</label>
+                        <input type="number" step="0.1" id="setup-weight" placeholder="e.g. 10.2" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)]">
+                    </div>
+                </div>
+            </div>
+
+            <button id="setup-btn" onclick="saveChildSetup()" class="w-full bg-[var(--forest)] text-[var(--cream)] py-6 rounded-full font-anton text-xl tracking-wider hover:translate-y-[-4px] hover:shadow-xl transition-all">
+                INITIALIZE CARE
+            </button>
+        </div>
+    </div>
+
+    <script>
+        Chart.defaults.color = 'rgba(1, 71, 46, 0.5)';
+        Chart.defaults.font.family = 'Inter';
+        
+        const ctx = document.getElementById('growthChart').getContext('2d');
+        let growthChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Birth', '2m', '4m', '6m', '9m', '12m', '14m'],
+                datasets: [
+                    {
+                        label: 'Weight (kg)',
+                        data: [3.2, 5.1, 6.8, 8.0, 8.9, 9.8, 10.2],
+                        borderColor: '#01472e',
+                        backgroundColor: 'rgba(1, 71, 46, 0.05)',
+                        borderWidth: 4,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#01472e',
+                        pointRadius: 5
+                    },
+                    {
+                        label: 'WHO 50th Percentile',
+                        data: [3.3, 5.6, 7.0, 7.9, 8.9, 9.6, 10.1],
+                        borderColor: '#a3b18a',
+                        borderDash: [6, 6],
+                        borderWidth: 3,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { boxWidth: 12, usePointStyle: true, font: { family: 'Inter', weight: 'bold' } } } },
+                scales: {
+                    y: { grid: { color: 'rgba(1, 71, 46, 0.05)' }, min: 0, max: 12 },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userStr = localStorage.getItem('arogyapath_user');
+            if (!userStr) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            try {
+                const user = JSON.parse(userStr);
+                const names = user.name.trim().split(' ');
+                let initials = names[0].charAt(0).toUpperCase();
+                if (names.length > 1) initials += names[names.length - 1].charAt(0).toUpperCase();
+                document.getElementById('header-user-initials').innerText = initials;
+
+                // Fetch Child Data
+                const res = await fetch('/api/child');
+                const data = await res.json();
+                
+                if (data.child_name) {
+                    document.querySelector('h2.font-anton').innerText = data.child_name.toUpperCase();
+                    
+                    // Update Chart Legend
+                    growthChart.data.datasets[0].label = `${data.child_name}'s Weight (kg)`;
+                    growthChart.update();
+
+                    const stats = document.querySelectorAll('.flex.gap-6.mt-3 span');
+                    stats[0].innerHTML = `<iconify-icon icon="lucide:calendar"></iconify-icon> AGE: ${data.age_months} MONTHS`;
+                    stats[1].innerHTML = `<iconify-icon icon="lucide:ruler"></iconify-icon> HT: ${data.height_cm} CM`;
+                    stats[2].innerHTML = `<iconify-icon icon="lucide:weight"></iconify-icon> WT: ${data.weight_kg} KG`;
+                } else {
+                    // Show setup modal if no data exists
+                    document.getElementById('setup-modal').classList.remove('hidden');
+                    document.getElementById('setup-modal').classList.add('flex');
+                }
+            } catch(e) {
+                console.error("Failed to load pediatric data:", e);
+            }
+        });
+
+        async function saveChildSetup() {
+            const btn = document.getElementById('setup-btn');
+            btn.innerText = "PROCESSING PEDIATRICS...";
+            btn.disabled = true;
+
+            const data = {
+                child_name: document.getElementById('setup-name').value,
+                age_months: document.getElementById('setup-age').value
+            };
+
+            try {
+                const res = await fetch('/api/child', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (res.ok) {
+                    alert("Child Profile Initialized Successfully!");
+                    window.location.reload();
+                } else {
+                    const err = await res.json();
+                    alert("Error: " + err.error);
+                    btn.innerText = "INITIALIZE CARE";
+                    btn.disabled = false;
+                }
+            } catch(e) {
+                console.error("Setup error:", e);
+                alert("Connection failed. Ensure backend is running on 3005.");
+                btn.innerText = "INITIALIZE CARE";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--olive);
+            color: var(--forest);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* SVG Noise Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-size: 11px; }
+
+        .card { background: var(--cream); border-radius: 2.5rem; padding: 32px; box-shadow: 0 10px 30px rgba(1, 71, 46, 0.05); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card:hover { transform: translateY(-4px); box-shadow: 0 15px 40px rgba(1, 71, 46, 0.08); }
+
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 99px; color: var(--forest); opacity: 0.6; transition: all 0.3s; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .sidebar-item:hover { background: rgba(1, 71, 46, 0.05); opacity: 1; }
+        .sidebar-item.active { background: var(--forest); color: var(--cream); opacity: 1; }
+
+        .input-group { margin-bottom: 20px; }
+        .input-group label { display: block; font-size: 11px; color: var(--forest); opacity: 0.6; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .input-group input { width: 100%; background: transparent; border: none; border-bottom: 2px solid var(--moss); padding: 12px 0; color: var(--forest); font-size: 16px; font-weight: 500; outline: none; transition: all 0.3s; font-family: 'Inter'; }
+        .input-group input:focus { border-color: var(--forest); }
+        .input-group input:disabled { opacity: 0.5; cursor: not-allowed; border-bottom-style: dashed; }
+
+        .btn-primary { padding: 16px 32px; background: var(--forest); border: none; border-radius: 99px; color: var(--cream); font-weight: 700; font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; transition: transform 0.3s, box-shadow 0.3s; display: inline-flex; justify-content: center; align-items: center; gap: 8px; box-shadow: 0 10px 20px rgba(1, 71, 46, 0.2); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(1, 71, 46, 0.25); }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--moss); border-radius: 99px; }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 h-full w-[260px] z-40 flex flex-col border-r border-forest/10 bg-[var(--sage)]">
+        <a href="index.html" class="flex items-center gap-2 px-8 py-10 no-underline">
+            <span class="font-anton text-2xl text-[var(--forest)] tracking-tighter">AROGYAPATH</span>
+        </a>
+
+        <nav class="flex-1 px-4 flex flex-col gap-2 overflow-y-auto">
+            <a href="dashboard.html" class="sidebar-item"><iconify-icon icon="lucide:layout-dashboard" class="text-xl"></iconify-icon> Dashboard</a>
+            <a href="risk.html" class="sidebar-item"><iconify-icon icon="lucide:brain" class="text-xl"></iconify-icon> Risk AI</a>
+            <a href="lab.html" class="sidebar-item"><iconify-icon icon="lucide:file-text" class="text-xl"></iconify-icon> Lab Reports</a>
+            <a href="maternal.html" class="sidebar-item"><iconify-icon icon="lucide:baby" class="text-xl"></iconify-icon> Maternal Care</a>
+            <a href="child.html" class="sidebar-item"><iconify-icon icon="lucide:child" class="text-xl"></iconify-icon> Child Care</a>
+            <a href="emergency.html" class="sidebar-item text-red-600 opacity-90"><iconify-icon icon="lucide:siren" class="text-xl"></iconify-icon> Emergency</a>
+        </nav>
+
+        <div class="p-6 border-t border-forest/10">
+            <a href="profile.html" class="sidebar-item active mb-2">
+                <iconify-icon icon="lucide:user" class="text-xl"></iconify-icon> Profile
+            </a>
+            <a href="index.html" class="sidebar-item" onclick="localStorage.removeItem('arogyapath_user')">
+                <iconify-icon icon="lucide:log-out" class="text-xl"></iconify-icon> Exit App
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col" style="margin-left: 260px;">
+        <!-- Topbar -->
+        <header class="sticky top-0 z-30 flex items-center justify-between px-10 py-6 bg-[var(--olive)]/90 backdrop-blur-md border-b border-forest/5">
+            <h1 class="text-2xl font-bold text-[var(--forest)] tracking-tight">User Profile</h1>
+            <div class="flex items-center gap-6">
+                <button class="relative w-12 h-12 rounded-full flex items-center justify-center bg-[var(--cream)] hover:bg-white transition-colors shadow-sm">
+                    <iconify-icon icon="lucide:bell" class="text-[var(--forest)] text-xl"></iconify-icon>
+                </button>
+                <a href="profile.html" class="w-12 h-12 rounded-full flex items-center justify-center utility-text text-[var(--cream)] bg-[var(--forest)] shadow-md transition-transform hover:scale-105">
+                    <span id="header-initials">--</span>
+                </a>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-10 overflow-y-auto max-w-4xl">
+            
+            <div class="flex items-center gap-8 mb-12">
+                <div class="w-32 h-32 rounded-full bg-[var(--forest)] text-[var(--cream)] flex items-center justify-center font-anton text-5xl shadow-lg border-4 border-[var(--sage)]" id="profile-initials">
+                    --
+                </div>
+                <div>
+                    <h2 class="font-anton text-[4rem] leading-none text-[var(--forest)]" id="profile-name">USER NAME</h2>
+                    <p class="utility-text text-[var(--forest)]/60 mt-2" id="profile-email">user@example.com</p>
+                </div>
+            </div>
+
+            <div class="card mb-10">
+                <h3 class="font-anton text-3xl mb-8 text-[var(--forest)]">ACCOUNT DETAILS</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="input-group">
+                        <label>Full Name</label>
+                        <input type="text" id="input-name" disabled>
+                    </div>
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="input-email" disabled>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div class="input-group">
+                        <label>Date of Birth</label>
+                        <input type="text" placeholder="DD/MM/YYYY" value="12/04/1990">
+                    </div>
+                    <div class="input-group">
+                        <label>Blood Group</label>
+                        <input type="text" placeholder="e.g. O+" value="O+">
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-forest/10">
+                    <button class="btn-primary" onclick="alert('Profile changes saved!')">Save Preferences</button>
+                </div>
+            </div>
+
+            <div class="card mb-10">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="font-anton text-3xl text-[var(--forest)]">EMERGENCY CONTACTS</h3>
+                    <iconify-icon icon="lucide:siren" class="text-2xl text-[#c2410c]"></iconify-icon>
+                </div>
+                
+                <p class="utility-text text-[var(--forest)]/60 mb-6">These contacts will receive alerts when you trigger the SOS protocol.</p>
+                
+                <div class="space-y-6 mb-8">
+                    <div class="p-5 border-2 border-[var(--sage)] rounded-2xl">
+                        <h4 class="utility-text mb-4 text-[var(--forest)]">Primary Contact</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group" style="margin-bottom:0">
+                                <label>Name</label>
+                                <input type="text" placeholder="e.g. Priya Sharma" value="Priya Sharma">
+                            </div>
+                            <div class="input-group" style="margin-bottom:0">
+                                <label>Phone / Relation</label>
+                                <input type="text" placeholder="e.g. Spouse" value="+91 98765 43210 (Spouse)">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-5 border-2 border-[var(--sage)] rounded-2xl">
+                        <h4 class="utility-text mb-4 text-[var(--forest)]">Secondary Contact / Doctor</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="input-group" style="margin-bottom:0">
+                                <label>Name</label>
+                                <input type="text" placeholder="e.g. Dr. Amit Patel" value="Dr. Amit Patel">
+                            </div>
+                            <div class="input-group" style="margin-bottom:0">
+                                <label>Phone / Relation</label>
+                                <input type="text" placeholder="e.g. Family Doctor" value="+91 91234 56789 (Doctor)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-forest/10">
+                    <button class="btn-primary" onclick="alert('Emergency Contacts updated successfully!')">Update Contacts</button>
+                </div>
+            </div>
+
+            <div class="card bg-red-50/50 border border-red-200">
+                <h3 class="font-anton text-3xl mb-4 text-red-800">DANGER ZONE</h3>
+                <p class="text-sm text-red-900/60 mb-6 font-medium leading-relaxed max-w-lg">Permanently delete your ArogyaPath account and all associated health intelligence data. This action cannot be reversed.</p>
+                <button class="utility-text text-red-700 bg-red-100 px-6 py-3 rounded-full hover:bg-red-200 transition-colors" onclick="confirmDelete()">Delete Account</button>
+            </div>
+            
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('arogyapath_user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                
+                // Set text fields
+                document.getElementById('profile-name').innerText = user.name;
+                document.getElementById('profile-email').innerText = user.email;
+                document.getElementById('input-name').value = user.name;
+                document.getElementById('input-email').value = user.email;
+
+                // Extract initials
+                const names = user.name.split(' ');
+                let initials = names[0].charAt(0).toUpperCase();
+                if (names.length > 1) {
+                    initials += names[names.length - 1].charAt(0).toUpperCase();
+                }
+
+                document.getElementById('header-initials').innerText = initials;
+                document.getElementById('profile-initials').innerText = initials;
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        function confirmDelete() {
+            if(confirm("Are you entirely sure you want to delete your account? All health data will be lost.")) {
+                localStorage.removeItem('arogyapath_user');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

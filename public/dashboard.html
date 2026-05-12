@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--olive);
+            color: var(--forest);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* SVG Noise Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-size: 11px; }
+
+        .card { 
+            background: var(--cream); border-radius: 2.5rem; padding: 32px; 
+            border: 1px solid rgba(1, 71, 46, 0.05); transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: cardReveal 0.6s cubic-bezier(0.23, 1, 0.32, 1) backwards;
+            will-change: transform, opacity;
+        }
+        .card:hover { transform: translateY(-6px); box-shadow: 0 30px 60px rgba(1, 71, 46, 0.08); border-color: rgba(1, 71, 46, 0.1); }
+        
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(20px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Tighter staggered animation delays */
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
+
+        .btn-action { transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); }
+        .btn-action:hover { transform: scale(1.03); filter: brightness(1.05); }
+        
+        .nav-item { transition: all 0.3s; position: relative; overflow: hidden; }
+        .nav-item::after { content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px; background: var(--forest); transition: width 0.3s; }
+        .nav-item:hover::after { width: 100%; }
+
+        .sidebar { animation: sidebarSlide 0.6s cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; }
+        @keyframes sidebarSlide {
+            from { transform: translateX(-20px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 99px; color: var(--forest); opacity: 0.6; transition: all 0.3s; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .sidebar-item:hover { background: rgba(1, 71, 46, 0.05); opacity: 1; }
+        .sidebar-item.active { background: var(--forest); color: var(--cream); opacity: 1; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--moss); border-radius: 99px; }
+
+        .badge { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-size: 10px; padding: 6px 12px; border-radius: 99px; }
+        .badge-success { background: rgba(1, 71, 46, 0.1); color: var(--forest); }
+
+        /* Notification Dropdown */
+        #notification-dropdown {
+            position: absolute; top: 70px; right: 0; width: 320px;
+            background: white; border-radius: 1.5rem; border: 1px solid rgba(1, 71, 46, 0.1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            display: none; flex-direction: column; z-index: 100;
+            overflow: hidden;
+        }
+        .notification-item {
+            padding: 16px 20px; border-bottom: 1px solid rgba(1, 71, 46, 0.05);
+            transition: background 0.3s; cursor: pointer;
+        }
+        .notification-item:hover { background: rgba(1, 71, 46, 0.02); }
+        .notification-item:last-child { border-bottom: none; }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 h-full w-[260px] z-40 flex flex-col border-r border-forest/10 bg-[var(--sage)]">
+        <a href="index.html" class="flex items-center gap-2 px-8 py-10 no-underline">
+            <span class="font-anton text-2xl text-[var(--forest)] tracking-tighter">AROGYAPATH</span>
+        </a>
+
+        <nav class="flex-1 px-4 flex flex-col gap-2 overflow-y-auto">
+            <a href="dashboard.html" class="sidebar-item active"><iconify-icon icon="lucide:layout-dashboard" class="text-xl"></iconify-icon> Dashboard</a>
+            <a href="risk.html" class="sidebar-item"><iconify-icon icon="lucide:brain" class="text-xl"></iconify-icon> Risk AI</a>
+            <a href="lab.html" class="sidebar-item"><iconify-icon icon="lucide:file-text" class="text-xl"></iconify-icon> Lab Reports</a>
+            <a href="maternal.html" class="sidebar-item"><iconify-icon icon="lucide:baby" class="text-xl"></iconify-icon> Maternal Care</a>
+            <a href="child.html" class="sidebar-item"><iconify-icon icon="lucide:child" class="text-xl"></iconify-icon> Child Care</a>
+            <a href="emergency.html" class="sidebar-item text-red-600 opacity-90"><iconify-icon icon="lucide:siren" class="text-xl"></iconify-icon> Emergency</a>
+        </nav>
+
+        <div class="p-6 border-t border-forest/10">
+            <a href="index.html" class="sidebar-item" onclick="localStorage.removeItem('arogyapath_user')">
+                <iconify-icon icon="lucide:log-out" class="text-xl"></iconify-icon> Exit App
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col" style="margin-left: 260px;">
+        <!-- Topbar -->
+        <header class="sticky top-0 z-30 flex items-center justify-between px-10 py-6 bg-[var(--olive)]/90 backdrop-blur-md border-b border-forest/5">
+            <div class="flex items-center gap-4">
+                <button onclick="openVitalsModal()" class="flex items-center gap-2 bg-[var(--forest)] text-[var(--cream)] px-6 py-3 rounded-full utility-text hover:scale-105 transition-transform shadow-lg">
+                    <iconify-icon icon="lucide:plus" class="text-lg"></iconify-icon> Add Daily Vitals
+                </button>
+                <h1 class="text-2xl font-bold text-[var(--forest)] tracking-tight">Health Overview</h1>
+            </div>
+            <div class="flex items-center gap-6 relative">
+                <button id="notif-btn" class="relative w-12 h-12 rounded-full flex items-center justify-center bg-[var(--cream)] hover:bg-white transition-colors shadow-sm">
+                    <iconify-icon icon="lucide:bell" class="text-[var(--forest)] text-xl"></iconify-icon>
+                    <span id="notif-badge" class="hidden absolute top-3 right-3 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-[var(--cream)]"></span>
+                </button>
+                
+                <div id="notification-dropdown">
+                    <div class="p-4 border-b border-forest/5 flex justify-between items-center bg-[var(--cream)]">
+                        <span class="utility-text text-[10px]">Notifications</span>
+                        <button onclick="markAllRead()" class="text-[9px] font-bold uppercase text-[var(--forest)]/60 hover:text-[var(--forest)]">Clear</button>
+                    </div>
+                    <div id="notif-list" class="max-h-[300px] overflow-y-auto">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+
+                <a href="profile.html" id="header-user-initials" class="w-12 h-12 rounded-full flex items-center justify-center utility-text text-[var(--cream)] bg-[var(--forest)] shadow-md transition-transform hover:scale-105">
+                    --
+                </a>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-10 overflow-y-auto">
+            
+            <!-- AI Insight Banner -->
+            <div class="mb-10 rounded-[2.5rem] p-6 flex items-start gap-5 bg-[var(--cream)] border-2 border-[var(--sage)]">
+                <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center bg-[var(--forest)] text-[var(--cream)] shadow-md">
+                    <iconify-icon icon="lucide:sparkles" class="text-xl"></iconify-icon>
+                </div>
+                <div class="flex-1">
+                    <p class="utility-text text-[var(--forest)] opacity-60 mb-2">Editorial AI Insight</p>
+                    <p class="text-[var(--forest)] font-medium text-lg leading-relaxed" id="insight-text">
+                        Your blood pressure has been remarkably stable this week. Fasting sugar is maintaining an optimal 98 mg/dL. Ensure continued hydration.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Vital Cards -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <!-- V1 -->
+                <div class="card flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--moss)]/30">
+                            <iconify-icon icon="lucide:heart" class="text-[var(--forest)] text-xl"></iconify-icon>
+                        </div>
+                        <iconify-icon icon="lucide:trending-up" class="text-[var(--forest)] opacity-50"></iconify-icon>
+                    </div>
+                    <div>
+                        <p class="font-anton text-5xl mb-1 text-[var(--forest)]">72<span class="text-lg font-inter font-bold opacity-40 ml-1">BPM</span></p>
+                        <p class="utility-text opacity-50">Resting Heart Rate</p>
+                    </div>
+                </div>
+                <!-- V2 -->
+                <div class="card flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--moss)]/30">
+                            <iconify-icon icon="lucide:droplets" class="text-[var(--forest)] text-xl"></iconify-icon>
+                        </div>
+                        <iconify-icon icon="lucide:minus" class="text-[var(--forest)] opacity-50"></iconify-icon>
+                    </div>
+                    <div>
+                        <p class="font-anton text-5xl mb-1 text-[var(--forest)]">98<span class="text-lg font-inter font-bold opacity-40 ml-1">mg/dL</span></p>
+                        <p class="utility-text opacity-50">Blood Sugar</p>
+                    </div>
+                </div>
+                <!-- V3 -->
+                <div class="card flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--moss)]/30">
+                            <iconify-icon icon="lucide:activity" class="text-[var(--forest)] text-xl"></iconify-icon>
+                        </div>
+                        <iconify-icon icon="lucide:minus" class="text-[var(--forest)] opacity-50"></iconify-icon>
+                    </div>
+                    <div>
+                        <p class="font-anton text-5xl mb-1 text-[var(--forest)]">118<span class="text-3xl">/76</span></p>
+                        <p class="utility-text opacity-50">Blood Pressure</p>
+                    </div>
+                </div>
+                <!-- V4 -->
+                <div class="card flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="w-12 h-12 rounded-full flex items-center justify-center bg-[var(--moss)]/30">
+                            <iconify-icon icon="lucide:scale" class="text-[var(--forest)] text-xl"></iconify-icon>
+                        </div>
+                        <iconify-icon icon="lucide:trending-down" class="text-[var(--forest)] opacity-50"></iconify-icon>
+                    </div>
+                    <div>
+                        <p class="font-anton text-5xl mb-1 text-[var(--forest)]">23.5</p>
+                        <p class="utility-text opacity-50">Body Mass Index</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                <div class="card bg-white">
+                    <h3 class="utility-text mb-6 text-[var(--forest)] opacity-60">Blood Sugar Trend</h3>
+                    <div class="relative h-[250px] w-full">
+                        <canvas id="sugarChart"></canvas>
+                    </div>
+                </div>
+                <div class="card bg-white">
+                    <h3 class="utility-text mb-6 text-[var(--forest)] opacity-60">Blood Pressure Trend</h3>
+                    <div class="relative h-[250px] w-full">
+                        <canvas id="bpChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+    </div>
+
+    <!-- Vitals Modal -->
+    <div id="vitals-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-[var(--forest)]/40 backdrop-blur-sm p-6">
+        <div class="bg-[var(--cream)] w-full max-w-lg rounded-[2.5rem] p-10 shadow-2xl scale-95 transition-transform duration-300" id="modal-content">
+            <div class="flex justify-between items-center mb-10">
+                <h2 class="font-anton text-4xl text-[var(--forest)]">LOG VITALS</h2>
+                <button onclick="closeVitalsModal()" class="text-[var(--forest)]/40 hover:text-[var(--forest)] transition-colors">
+                    <iconify-icon icon="lucide:x" class="text-3xl"></iconify-icon>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-8 mb-10">
+                <div class="space-y-2">
+                    <label class="utility-text opacity-60">Blood Sugar (mg/dL)</label>
+                    <input type="number" id="v-sugar" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)] transition-colors">
+                </div>
+                <div class="space-y-2">
+                    <label class="utility-text opacity-60">Heart Rate (BPM)</label>
+                    <input type="number" id="v-hr" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)] transition-colors">
+                </div>
+                <div class="space-y-2">
+                    <label class="utility-text opacity-60">BP Systolic</label>
+                    <input type="number" id="v-sys" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)] transition-colors">
+                </div>
+                <div class="space-y-2">
+                    <label class="utility-text opacity-60">BP Diastolic</label>
+                    <input type="number" id="v-dia" class="w-full bg-transparent border-b-2 border-[var(--moss)] py-2 text-xl font-bold text-[var(--forest)] outline-none focus:border-[var(--forest)] transition-colors">
+                </div>
+            </div>
+
+            <button onclick="submitVitals()" class="w-full bg-[var(--forest)] text-[var(--cream)] py-6 rounded-full font-anton text-xl tracking-wider hover:translate-y-[-4px] hover:shadow-xl transition-all">
+                SAVE INTELLIGENCE
+            </button>
+        </div>
+    </div>
+
+    <!-- Chart Setup Scripts -->
+    <script>
+        // Use Forest colors for charts
+        Chart.defaults.color = '#01472e';
+        Chart.defaults.font.family = 'Inter';
+        
+        const gridConfig = { color: 'rgba(1, 71, 46, 0.05)', drawBorder: false };
+
+        let sugarChart, bpChart;
+
+        async function fetchAndRenderCharts() {
+            try {
+                const res = await fetch('/api/vitals');
+                const data = await res.json();
+                const vitals = data.vitals;
+                
+                const labels = vitals.map(v => {
+                    const date = new Date(v.date);
+                    return ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][date.getDay()];
+                });
+
+                const sugarData = vitals.map(v => v.blood_sugar);
+                const sysData = vitals.map(v => v.systolic);
+                const diaData = vitals.map(v => v.diastolic);
+
+                // Update Vital Cards
+                const latest = vitals[vitals.length - 1];
+                if (latest) {
+                    document.querySelector('.card:nth-child(1) p.font-anton').innerHTML = `${latest.heart_rate}<span class="text-lg font-inter font-bold opacity-40 ml-1">BPM</span>`;
+                    document.querySelector('.card:nth-child(2) p.font-anton').innerHTML = `${latest.blood_sugar}<span class="text-lg font-inter font-bold opacity-40 ml-1">mg/dL</span>`;
+                    document.querySelector('.card:nth-child(3) p.font-anton').innerHTML = `${latest.systolic}<span class="text-3xl">/${latest.diastolic}</span>`;
+                }
+
+                if (sugarChart) sugarChart.destroy();
+                if (bpChart) bpChart.destroy();
+
+                // Sugar Chart
+                const ctxSugar = document.getElementById('sugarChart').getContext('2d');
+                sugarChart = new Chart(ctxSugar, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Blood Sugar',
+                            data: sugarData,
+                            borderColor: '#01472e',
+                            backgroundColor: 'rgba(1, 71, 46, 0.1)',
+                            borderWidth: 4,
+                            tension: 0.4,
+                            pointBackgroundColor: '#01472e',
+                            pointRadius: 4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { grid: gridConfig, min: 80, max: 130 }, x: { grid: { display: false } } }
+                    }
+                });
+
+                // BP Chart
+                const ctxBp = document.getElementById('bpChart').getContext('2d');
+                bpChart = new Chart(ctxBp, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Systolic', data: sysData, borderColor: '#01472e', borderWidth: 3, tension: 0.4, pointBackgroundColor: '#01472e', pointRadius: 4 },
+                            { label: 'Diastolic', data: diaData, borderColor: '#a3b18a', borderDash: [6, 6], borderWidth: 3, tension: 0.4, pointBackgroundColor: '#a3b18a', pointRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { grid: gridConfig, min: 60, max: 150 }, x: { grid: { display: false } } }
+                    }
+                });
+            } catch(e) {
+                console.error("Failed to fetch vitals:", e);
+            }
+        }
+
+        function openVitalsModal() {
+            const modal = document.getElementById('vitals-modal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => document.getElementById('modal-content').classList.remove('scale-95'), 10);
+        }
+
+        function closeVitalsModal() {
+            const modal = document.getElementById('vitals-modal');
+            document.getElementById('modal-content').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
+        async function submitVitals() {
+            const data = {
+                blood_sugar: document.getElementById('v-sugar').value,
+                heart_rate: document.getElementById('v-hr').value,
+                systolic: document.getElementById('v-sys').value,
+                diastolic: document.getElementById('v-dia').value,
+                weight: 72 // Default weight for now
+            };
+
+            try {
+                const user = JSON.parse(localStorage.getItem('arogyapath_user') || '{}');
+                const res = await fetch('/api/vitals', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ...data, userId: user.id })
+                });
+                
+                if (res.ok) {
+                    closeVitalsModal();
+                    fetchAndRenderCharts();
+                    
+                    // Clear inputs
+                    ['v-sugar', 'v-hr', 'v-sys', 'v-dia'].forEach(id => document.getElementById(id).value = '');
+                }
+            } catch(e) {
+                alert("Failed to save vitals.");
+            }
+        }
+
+        fetchAndRenderCharts();
+
+        // Rotating Insight text
+        const insights = [
+            "Your blood pressure has been remarkably stable this week. Fasting sugar is maintaining an optimal 98 mg/dL. Ensure continued hydration.",
+            "You have achieved your organic mobility goals 4 out of 7 days. Your cardiovascular rate is exceptional at 72 BPM.",
+            "Notification: You have an upcoming cardiology consultation tomorrow at 10:30 AM with Dr. Mehta."
+        ];
+        let iIdx = 0;
+        setInterval(() => {
+            iIdx = (iIdx + 1) % insights.length;
+            const el = document.getElementById('insight-text');
+            el.style.opacity = 0;
+            setTimeout(() => {
+                el.innerText = insights[iIdx];
+                el.style.opacity = 1;
+            }, 500);
+        }, 6000);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('arogyapath_user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    const names = user.name.trim().split(' ');
+                    let initials = names[0].charAt(0).toUpperCase();
+                    if (names.length > 1) {
+                        initials += names[names.length - 1].charAt(0).toUpperCase();
+                    }
+                    const icon = document.getElementById('header-user-initials');
+                    if (icon) icon.innerText = initials;
+                } catch(e) {}
+            } else {
+                window.location.href = 'login.html';
+            }
+
+            // Notification logic
+            const notifBtn = document.getElementById('notif-btn');
+            const dropdown = document.getElementById('notification-dropdown');
+            
+            notifBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdown.style.display = dropdown.style.display === 'flex' ? 'none' : 'flex';
+                fetchNotifications();
+            });
+
+            document.addEventListener('click', () => {
+                dropdown.style.display = 'none';
+            });
+
+            fetchNotifications();
+        });
+
+        async function fetchNotifications() {
+            try {
+                const res = await fetch('/api/notifications');
+                const data = await res.json();
+                const list = document.getElementById('notif-list');
+                const badge = document.getElementById('notif-badge');
+                
+                const unread = data.notifications.filter(n => !n.read);
+                if (unread.length > 0) badge.classList.remove('hidden');
+                else badge.classList.add('hidden');
+
+                list.innerHTML = data.notifications.map(n => `
+                    <div class="notification-item ${n.read ? 'opacity-50' : ''}">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-bold text-xs">${n.title}</span>
+                            <span class="text-[9px] opacity-50">${n.time}</span>
+                        </div>
+                        <p class="text-[11px] leading-snug opacity-80">${n.message}</p>
+                    </div>
+                `).join('');
+            } catch(e) {}
+        }
+
+        async function markAllRead() {
+            try {
+                await fetch('/api/notifications/read', { method: 'POST' });
+                fetchNotifications();
+            } catch(e) {}
+        }
+    </script>
+</body>
+</html>

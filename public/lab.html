@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab Report Analyzer | ArogyaPath</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --forest: #01472e;
+            --sage: #ccd5ae;
+            --olive: #e9edc9;
+            --cream: #fefae0;
+            --moss: #a3b18a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--olive);
+            color: var(--forest);
+            margin: 0;
+            overflow-x: hidden;
+        }
+
+        /* SVG Noise Overlay */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999; opacity: 0.04;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+        }
+
+        .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; text-transform: uppercase; }
+        .utility-text { font-family: 'Inter', sans-serif; text-transform: uppercase; letter-spacing: 0.1em; font-weight: 700; font-size: 11px; }
+
+        .card { background: var(--cream); border-radius: 2.5rem; padding: 32px; box-shadow: 0 10px 30px rgba(1, 71, 46, 0.05); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+        
+        .sidebar-item { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-radius: 99px; color: var(--forest); opacity: 0.6; transition: all 0.3s; text-decoration: none; font-weight: 600; font-size: 14px; }
+        .sidebar-item:hover { background: rgba(1, 71, 46, 0.05); opacity: 1; }
+        .sidebar-item.active { background: var(--forest); color: var(--cream); opacity: 1; }
+
+        .drop-zone { border: 2px dashed rgba(1, 71, 46, 0.3); border-radius: 2.5rem; padding: 60px 24px; text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); background: rgba(1, 71, 46, 0.02); }
+        .drop-zone:hover, .drop-zone.dragover { border-color: var(--forest); background: rgba(1, 71, 46, 0.08); transform: translateY(-4px); }
+
+        .badge { padding: 4px 12px; border-radius: 99px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
+        .badge-danger { background: rgba(1, 71, 46, 0.1); color: var(--forest); border: 1px solid rgba(1, 71, 46, 0.2); }
+        .badge-success { background: var(--sage); color: var(--forest); }
+
+        @keyframes scan { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+        .scanner-line { position: absolute; left: 0; right: 0; height: 3px; background: var(--forest); box-shadow: 0 0 20px var(--forest); animation: scan 2s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--moss); border-radius: 99px; }
+    </style>
+</head>
+
+<body class="flex min-h-screen">
+
+    <!-- Sidebar -->
+    <aside class="fixed top-0 left-0 h-full w-[260px] z-40 flex flex-col border-r border-forest/10 bg-[var(--sage)]">
+        <a href="index.html" class="flex items-center gap-2 px-8 py-10 no-underline">
+            <span class="font-anton text-2xl text-[var(--forest)] tracking-tighter">AROGYAPATH</span>
+        </a>
+
+        <nav class="flex-1 px-4 flex flex-col gap-2 overflow-y-auto">
+            <a href="dashboard.html" class="sidebar-item"><iconify-icon icon="lucide:layout-dashboard" class="text-xl"></iconify-icon> Dashboard</a>
+            <a href="risk.html" class="sidebar-item"><iconify-icon icon="lucide:brain" class="text-xl"></iconify-icon> Risk AI</a>
+            <a href="lab.html" class="sidebar-item active"><iconify-icon icon="lucide:file-text" class="text-xl"></iconify-icon> Lab Reports</a>
+            <a href="maternal.html" class="sidebar-item"><iconify-icon icon="lucide:baby" class="text-xl"></iconify-icon> Maternal Care</a>
+            <a href="child.html" class="sidebar-item"><iconify-icon icon="lucide:child" class="text-xl"></iconify-icon> Child Care</a>
+            <a href="emergency.html" class="sidebar-item text-red-600 opacity-90"><iconify-icon icon="lucide:siren" class="text-xl"></iconify-icon> Emergency</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col" style="margin-left: 260px;">
+        <header class="sticky top-0 z-30 flex items-center justify-between px-10 py-6 bg-[var(--olive)]/90 backdrop-blur-md border-b border-forest/5">
+            <h1 class="text-2xl font-bold text-[var(--forest)] tracking-tight">Lab Analyzer</h1>
+            <a href="profile.html" id="header-user-initials" class="w-12 h-12 rounded-full flex items-center justify-center utility-text text-[var(--cream)] bg-[var(--forest)] shadow-md transition-transform hover:scale-105">--</a>
+        </header>
+
+        <main class="flex-1 p-10 overflow-y-auto max-w-4xl mx-auto w-full">
+            
+            <!-- Upload Area -->
+            <div id="upload-panel">
+                <div class="text-center mb-10">
+                    <h2 class="font-anton text-[4rem] text-[var(--forest)] leading-none mb-4">PARSER</h2>
+                    <p class="font-medium text-[var(--forest)]/60 text-sm max-w-md mx-auto leading-relaxed">Upload your document. Our AI will extract the data, highlight variations, and explain it in editorial language.</p>
+                </div>
+                
+                <input type="file" id="file-input" class="hidden" accept=".pdf,.jpg,.png" onchange="handleFile(this.files[0])">
+                
+                <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()"
+                     ondragover="event.preventDefault(); this.classList.add('dragover');" 
+                     ondragleave="this.classList.remove('dragover');"
+                     ondrop="event.preventDefault(); this.classList.remove('dragover'); handleFile(event.dataTransfer.files[0]);">
+                    
+                    <div class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center bg-[var(--moss)]/30">
+                        <iconify-icon icon="lucide:upload-cloud" class="text-[var(--forest)] text-3xl"></iconify-icon>
+                    </div>
+                    <h3 class="font-bold text-lg text-[var(--forest)] mb-2">Drag & drop your report here</h3>
+                    <p class="utility-text text-[var(--forest)]/50 mb-8">PDF, JPG, PNG (Max 5MB)</p>
+                    <button class="bg-[var(--forest)] hover:bg-[var(--forest)]/90 text-[var(--cream)] utility-text px-8 py-4 rounded-full transition-transform hover:-translate-y-1 shadow-md">
+                        Select File
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scanning Area -->
+            <div id="scanning-panel" class="hidden text-center py-20">
+                <div class="relative w-48 h-64 mx-auto mb-10 border-4 border-[var(--forest)]/20 rounded-[1.5rem] overflow-hidden bg-[var(--cream)] shadow-md">
+                    <div class="scanner-line"></div>
+                    <iconify-icon icon="lucide:file-text" class="text-[var(--moss)] text-6xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></iconify-icon>
+                </div>
+                <h3 class="font-anton text-4xl mb-4 text-[var(--forest)]">PROCESSING</h3>
+                <p class="utility-text text-[var(--forest)]/60 animate-pulse" id="scan-status">Extracting semantics...</p>
+            </div>
+
+            <!-- Result Area -->
+            <div id="result-state" class="hidden">
+                <div class="flex items-center justify-between mb-10">
+                    <div>
+                        <h2 class="font-anton text-4xl text-[var(--forest)]">ANALYSIS COMPLETE</h2>
+                        <p class="utility-text text-[var(--forest)]/50 mt-2 flex items-center gap-2">
+                            <iconify-icon icon="lucide:file-check" class="text-[var(--forest)]"></iconify-icon> Document Parsed Successfully
+                        </p>
+                    </div>
+                    <button onclick="reset()" class="utility-text text-[var(--forest)]/50 hover:text-[var(--forest)] transition-colors px-6 py-3 border border-[var(--forest)]/20 rounded-full">
+                        Upload Another
+                    </button>
+                </div>
+
+                <!-- AI Summary -->
+                <div class="card mb-8 bg-[var(--moss)]/20 border-none shadow-none">
+                    <div class="flex items-start gap-6">
+                        <div class="w-12 h-12 rounded-full flex-shrink-0 flex items-center justify-center bg-[var(--forest)] text-[var(--cream)]">
+                            <iconify-icon icon="lucide:sparkles" class="text-xl"></iconify-icon>
+                        </div>
+                        <div>
+                            <p class="utility-text text-[var(--forest)]/60 mb-3">Editorial Summary</p>
+                            <p class="text-[var(--forest)] font-medium text-lg leading-relaxed mb-6" id="ai-summary">
+                                <!-- Populated via JS -->
+                            </p>
+                            <div class="bg-[var(--cream)] p-4 rounded-[1.5rem] inline-block shadow-sm">
+                                <p class="text-sm font-semibold text-[var(--forest)] flex items-center gap-2">
+                                    <iconify-icon icon="lucide:info" class="text-[var(--moss)]"></iconify-icon> <span id="ai-suggestion"></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extracted Data Table -->
+                <div class="card">
+                    <h3 class="utility-text text-[var(--forest)]/60 mb-6">Extracted Parameters</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-sm font-medium">
+                            <thead>
+                                <tr class="text-[var(--forest)]/50 border-b-2 border-[var(--forest)]/10">
+                                    <th class="pb-4">Parameter</th>
+                                    <th class="pb-4">Value</th>
+                                    <th class="pb-4">Reference Range</th>
+                                    <th class="pb-4 text-right">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="params-table">
+                                <!-- Populated via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        async function handleFile(file) {
+            if (!file) return;
+            
+            document.getElementById('upload-panel').style.display = 'none';
+            document.getElementById('scanning-panel').style.display = 'block';
+            
+            const status = document.getElementById('scan-status');
+            
+            setTimeout(() => status.innerText = "Parsing terminology...", 1000);
+            setTimeout(() => status.innerText = "Processing via AI backend...", 2000);
+            
+            try {
+                const res = await fetch('/api/analyze-lab', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fileName: file.name })
+                });
+                
+                if (!res.ok) throw new Error("Server responded with error " + res.status);
+                
+                const data = await res.json();
+                
+                // Add a realistic 3-second delay for processing simulation
+                setTimeout(() => {
+                    document.getElementById('scanning-panel').style.display = 'none';
+                    document.getElementById('result-state').style.display = 'block';
+                    
+                    // Mute the summary text to fit editorial tone by removing ** markdown
+                    document.getElementById('ai-summary').innerHTML = data.summary.replace(/\*\*(.*?)\*\*/g, '<span class="font-bold underline decoration-[var(--moss)]">$1</span>');
+                    document.getElementById('ai-suggestion').innerText = data.suggestion;
+
+                    const tbody = document.getElementById('params-table');
+                    tbody.innerHTML = '';
+                    data.parameters.forEach(p => {
+                        const statusClass = p.status === 'Normal' ? 'badge-success' : 'badge-danger';
+                        const tr = document.createElement('tr');
+                        tr.className = "border-b border-[var(--forest)]/5 text-[var(--forest)]";
+                        tr.innerHTML = `
+                            <td class="py-5 font-semibold">${p.name}</td>
+                            <td class="py-5 text-lg font-bold">${p.value}</td>
+                            <td class="py-5 text-[var(--forest)]/50">${p.range}</td>
+                            <td class="py-5 text-right"><span class="badge ${statusClass}">${p.status}</span></td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }, 3000);
+
+            } catch (err) {
+                console.error("Backend error", err);
+                alert("Failed to reach AI backend.");
+                reset();
+            }
+        }
+
+        function reset() {
+            document.getElementById('result-state').style.display = 'none';
+            document.getElementById('scanning-panel').style.display = 'none';
+            document.getElementById('upload-panel').style.display = 'block';
+        }
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userStr = localStorage.getItem('arogyapath_user');
+            if (userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    const names = user.name.trim().split(' ');
+                    let initials = names[0].charAt(0).toUpperCase();
+                    if (names.length > 1) {
+                        initials += names[names.length - 1].charAt(0).toUpperCase();
+                    }
+                    const icon = document.getElementById('header-user-initials');
+                    if (icon) icon.innerText = initials;
+                } catch(e) {}
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+</html>
